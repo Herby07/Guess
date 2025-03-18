@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: #333;
+      padding: 20px;
+      border-radius: 10px;
+      width: 350px;
+      margin: auto;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .profile-info {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .profile-info p {
+      background: #444;
+      padding: 10px;
+      border-radius: 5px;
+      margin: 5px 0;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      background: #28a745;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #218838;
+    }
+
+    .error, .success {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .success {
+      color: #28a745;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Profil</h2>
+
+    <div class="profile-info">
+      <p><strong>Numéro :</strong> <span id="userPhone"></span></p>
+      <p><strong>Balance :</strong> <span id="userBalance">0</span> $</p>
+    </div>
+
+    <h3>Changer de mot de passe</h3>
+    <input type="password" id="oldPassword" placeholder="Ancien mot de passe" required>
+    <input type="password" id="newPassword" placeholder="Nouveau mot de passe" required>
+    <button id="changePasswordBtn">Modifier</button>
+
+    <div class="error" id="errorMessage"></div>
+    <div class="success" id="successMessage"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, get, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpB3ReBKoVpat27O7udxzIHboJcUf5nvs",
+      authDomain: "guess-90225.firebaseapp.com",
+      databaseURL: "https://guess-90225-default-rtdb.firebaseio.com",
+      projectId: "guess-90225",
+      storageBucket: "guess-90225.appspot.com",
+      messagingSenderId: "352495188082",
+      appId: "1:352495188082:web:8203d454ca1a1fd5642aeb"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const userPhone = sessionStorage.getItem("userPhone");
+
+    if (!userPhone) {
+      window.location.href = "index.html";
+    } else {
+      document.getElementById("userPhone").textContent = "+509 " + userPhone;
+
+      const userRef = ref(database, "users/" + userPhone);
+      get(userRef).then(snapshot => {
+        if (snapshot.exists()) {
+          document.getElementById("userBalance").textContent = snapshot.val().balance;
+        }
+      });
+    }
+
+    document.getElementById("changePasswordBtn").addEventListener("click", async () => {
+      const oldPassword = document.getElementById("oldPassword").value.trim();
+      const newPassword = document.getElementById("newPassword").value.trim();
+      const errorMessage = document.getElementById("errorMessage");
+      const successMessage = document.getElementById("successMessage");
+
+      errorMessage.textContent = "";
+      successMessage.textContent = "";
+
+      if (oldPassword.length < 4 || newPassword.length < 4) {
+        errorMessage.textContent = "Les mots de passe doivent contenir au moins 4 caractères.";
+        return;
+      }
+
+      const userRef = ref(database, "users/" + userPhone);
+      const snapshot = await get(userRef);
+
+      if (snapshot.exists()) {
+        const userData = snapshot.val();
+
+        if (userData.password === oldPassword) {
+          await update(userRef, { password: newPassword });
+          successMessage.textContent = "Mot de passe mis à jour avec succès.";
+        } else {
+          errorMessage.textContent = "Ancien mot de passe incorrect.";
+        }
+      }
+    });
+  </script>
+</body>
+</html>

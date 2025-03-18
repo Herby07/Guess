@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dépôt - Jeu de Trouve le Nombre</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      margin: 0;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 600px;
+      background: #111;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    h1, h2 {
+      color: white;
+    }
+
+    p, ul {
+      color: #bbb;
+      line-height: 1.6;
+      text-align: left;
+    }
+
+    input[type="text"] {
+      
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #444;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button {
+      background: #17a2b8;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #138496;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .links {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .links a {
+      color: #17a2b8;
+      text-decoration: none;
+      margin: 0 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dépôt</h1>
+    <p>Pour effectuer un dépôt, suivez ces étapes :</p>
+    <ul>
+      <li>1. Envoyez votre dépôt à : <strong>MonCash : 38114307<br> NatCash: 32908546</strong></li>
+      <li>2. Une fois l'envoi effectué, récupérez votre code de transaction.</li>
+      <li>3. Entrez ce code ci-dessous et validez votre dépôt.</li>
+      Les depot prennent maximun 12 heures
+    </ul>
+
+    <form id="depositForm">
+      <label for="transactionCode">Code de transaction :</label>
+      <input type="text" id="transactionCode" placeholder="Entrez le code de transaction" required>
+      <button type="submit">Valider le dépôt</button>
+    </form>
+
+    <div class="message" id="message"></div>
+
+  <!-- Firebase SDKs -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpB3ReBKoVpat27O7udxzIHboJcUf5nvs",
+      authDomain: "guess-90225.firebaseapp.com",
+      databaseURL: "https://guess-90225-default-rtdb.firebaseio.com",
+      projectId: "guess-90225",
+      storageBucket: "guess-90225.firebasestorage.app",
+      messagingSenderId: "352495188082",
+      appId: "1:352495188082:web:8203d454ca1a1fd5642aeb",
+      measurementId: "G-9FBXD9HZBX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const depositForm = document.getElementById('depositForm');
+    const messageDiv = document.getElementById('message');
+
+    depositForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const transactionCode = document.getElementById('transactionCode').value.trim();
+      const phone = sessionStorage.getItem('userPhone'); // Récupère le numéro stocké
+
+      if (!phone) {
+        messageDiv.textContent = "Erreur : Numéro de téléphone introuvable.";
+        messageDiv.style.color = "red";
+        return;
+      }
+
+      if (!transactionCode) {
+        messageDiv.textContent = "Veuillez entrer un code de transaction.";
+        messageDiv.style.color = "red";
+        return;
+      }
+
+      try {
+        const depositRef = ref(database, 'depot');
+        await push(depositRef, {
+          phone: phone,
+          transactionCode: transactionCode,
+          timestamp: Date.now()
+        });
+
+        messageDiv.textContent = "Dépôt enregistré avec succès.";
+        messageDiv.style.color = "green";
+        depositForm.reset();
+      } catch (error) {
+        messageDiv.textContent = "Erreur : " + error.message;
+        messageDiv.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Demande de Retrait</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #222;
+      margin: 0;
+      padding: 20px;
+      color: white;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 500px;
+      background: #111;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      color: white;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 10px 10px 0;
+      border: 1px solid #444;
+      background: #333;
+      color: white;
+      border-radius: 5px;
+    }
+
+    button {
+      background: #ff9800;
+      color: white;
+      border: none;
+      padding: 10px;
+      width: 100%;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background: #e68900;
+    }
+
+    .message {
+      margin-top: 15px;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .info {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Demande de Retrait</h1>
+    <p class="info">Les retraits prennent maximum 12 heures.</p>
+
+    <form id="withdrawalForm">
+      <label for="amount">Montant à retirer :</label>
+      <input type="number" id="amount" placeholder="Entrez le montant" required>
+
+      <button type="submit">Demander le Retrait</button>
+    </form>
+
+    <div class="message" id="message"></div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+    import { getDatabase, ref, get, push, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDpB3ReBKoVpat27O7udxzIHboJcUf5nvs",
+      authDomain: "guess-90225.firebaseapp.com",
+      databaseURL: "https://guess-90225-default-rtdb.firebaseio.com",
+      projectId: "guess-90225",
+      storageBucket: "guess-90225.firebasestorage.app",
+      messagingSenderId: "352495188082",
+      appId: "1:352495188082:web:8203d454ca1a1fd5642aeb",
+      measurementId: "G-9FBXD9HZBX"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+
+    const withdrawalForm = document.getElementById('withdrawalForm');
+    const messageDiv = document.getElementById('message');
+
+    withdrawalForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const phone = sessionStorage.getItem('userPhone');
+      const amount = parseFloat(document.getElementById('amount').value.trim());
+
+      if (!phone) {
+        messageDiv.textContent = "Aucun numéro de téléphone trouvé dans la session.";
+        messageDiv.style.color = "red";
+        return;
+      }
+
+      if (isNaN(amount) || amount <= 0) {
+        messageDiv.textContent = "Veuillez entrer un montant valide.";
+        messageDiv.style.color = "red";
+        return;
+      }
+
+      try {
+        // Vérifier si une demande de retrait est déjà en attente
+        const retraitRef = ref(database, 'retrait');
+        const retraitSnapshot = await get(retraitRef);
+
+        let retraitEnCours = false;
+        retraitSnapshot.forEach(childSnapshot => {
+          if (childSnapshot.val().phone === phone) {
+            retraitEnCours = true;
+          }
+        });
+
+        if (retraitEnCours) {
+          messageDiv.textContent = "Vous avez déjà une demande de retrait en attente.";
+          messageDiv.style.color = "red";
+          return;
+        }
+
+        // Vérifier le solde de l'utilisateur
+        const userRef = ref(database, `users/${phone}`);
+        const userSnapshot = await get(userRef);
+
+        if (!userSnapshot.exists()) {
+          messageDiv.textContent = "Compte utilisateur introuvable.";
+          messageDiv.style.color = "red";
+          return;
+        }
+
+        const userData = userSnapshot.val();
+        let currentBalance = parseFloat(userData.balance) || 0;
+
+        if (currentBalance < amount) {
+          messageDiv.textContent = "Fonds insuffisants.";
+          messageDiv.style.color = "red";
+          return;
+        }
+
+        // Ajouter la demande de retrait dans la table "retrait"
+        await push(retraitRef, {
+          phone: phone,
+          amount: amount,
+          timestamp: Date.now()
+        });
+
+        // Réduire la balance de l'utilisateur
+        const newBalance = currentBalance - amount;
+        await update(userRef, { balance: newBalance });
+
+        messageDiv.textContent = "Demande de retrait envoyée avec succès.";
+        messageDiv.style.color = "green";
+        withdrawalForm.reset();
+
+      } catch (error) {
+        messageDiv.textContent = "Erreur : " + error.message;
+        messageDiv.style.color = "red";
+      }
+    });
+  </script>
+</body>
+</html>
