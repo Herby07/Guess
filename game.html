@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="fr">
   <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Jeu - Trouve le Nombre</title>
     <style>
       /* Styles pour le menu */
@@ -17,8 +17,8 @@
         display: flex;
         justify-content: space-between;
       }
-
-      .menu-btn, .close-btn {
+      .menu-btn,
+      .close-btn {
         background: #444;
         color: white;
         border: none;
@@ -27,7 +27,6 @@
         cursor: pointer;
         font-size: 16px;
       }
-
       .menu-sidebar {
         position: fixed;
         top: 0;
@@ -39,33 +38,28 @@
         transition: 0.3s;
         z-index: 1001;
       }
-
       .menu-sidebar.active {
         transform: translateX(-300px);
       }
-
       .menu-overlay {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.5);
         backdrop-filter: blur(5px);
         display: none;
         z-index: 999;
       }
-
       .menu-overlay.active {
         display: block;
       }
-
       .menu-content {
         display: flex;
         flex-direction: column;
         gap: 10px;
       }
-
       .menu-content button {
         padding: 15px;
         background: #444;
@@ -75,11 +69,9 @@
         cursor: pointer;
         font-size: 16px;
       }
-
       .menu-content button:hover {
         background: #555;
       }
-
       /* Styles existants modifiés */
       body {
         font-family: Arial, sans-serif;
@@ -90,7 +82,6 @@
         text-align: center;
         color: white;
       }
-
       .tv-container {
         width: 90%;
         max-width: 600px;
@@ -102,7 +93,6 @@
         border: 10px solid #444;
         position: relative;
       }
-
       .screen {
         width: 100%;
         height: 300px;
@@ -116,7 +106,6 @@
         align-items: center;
         overflow: hidden;
       }
-
       .number {
         width: 20%;
         height: 60px;
@@ -131,16 +120,14 @@
         border-radius: 5px;
         transition: 0.3s;
       }
-
       .number:hover {
         background: #17a2b8;
       }
-
       .eliminated {
         display: none;
       }
-
-      .win, .lose {
+      .win,
+      .lose {
         display: none;
         font-size: 18px;
         font-weight: bold;
@@ -148,30 +135,25 @@
         padding: 10px;
         border-radius: 5px;
       }
-
       .win {
         color: #fff;
         background: #28a745;
       }
-
       .lose {
         color: #fff;
         background: #dc3545;
       }
-
       .balance {
         font-size: 18px;
         font-weight: bold;
         color: #f8c291;
         margin-bottom: 10px;
       }
-
       .chances {
         font-size: 16px;
         color: #f1c40f;
         margin-bottom: 10px;
       }
-
       #playBtn {
         background: #007bff;
         color: white;
@@ -183,7 +165,6 @@
         margin-top: 10px;
         width: 100%;
       }
-
       #confirmBtn {
         background: #28a745;
         color: white;
@@ -196,7 +177,6 @@
         width: 100%;
         display: none;
       }
-
       #numberInput {
         margin-top: 20px;
         padding: 10px;
@@ -211,30 +191,67 @@
         transition: 0.3s;
         display: none;
       }
-
       #numberInput:focus {
         background: #555;
+      }
+      /* Animation de vagues pour le chargement de la balance */
+      .loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .loading-screen::after {
+        content: '';
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(42, 42, 114, 0.5);
+        border-radius: 50%;
+        animation: wave 1.5s infinite ease-in-out;
+      }
+      .loading-screen::before {
+        content: '';
+        width: 60px;
+        height: 60px;
+        border: 4px solid rgba(42, 42, 114, 0.5);
+        border-radius: 50%;
+        animation: wave 1.5s infinite 0.75s ease-in-out;
+        position: absolute;
+      }
+      @keyframes wave {
+        0% {
+          transform: scale(0.2);
+          opacity: 1;
+        }
+        100% {
+          transform: scale(1);
+          opacity: 0;
+        }
+      }
+      #winAmount {
+        display: none;
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 15px;
+        padding: 10px;
+        border-radius: 5px;
+        color: #fff;
+        background: #28a745;
       }
     </style>
   </head>
   <body>
-    <!-- Menu -->
-    <div class="header">
-      <button class="menu-btn">Menu</button>
-      <button class="close-btn" style="display: none;">Fermer</button>
-    </div>
+    <!-- Écran de chargement -->
+    <div class="loading-screen" id="loadingScreen"></div>
 
-    <div class="menu-overlay"></div>
-    <div class="menu-sidebar">
-      <div class="menu-content">
-        <button onclick="window.location.href='deposit.html'">Dépôt</button>
-        <button onclick="window.location.href='withdrawal.html'">Retrait</button>
-        <button onclick="window.location.href='profil.html'">Profil</button>
-      </div>
-    </div>
-
-    <!-- Contenu principal du jeu -->
-    <div class="tv-container">
+    <!-- Contenu principal (masqué pendant le chargement) -->
+    <div class="tv-container" id="gameContainer" style="display: none;">
       <div class="balance">Balance : <span id="balance">Chargement...</span> G</div>
       <h3>🎯 Trouve le Nombre</h3>
       <div class="chances" id="chances">Chances restantes : 5</div>
@@ -243,6 +260,7 @@
       <button id="confirmBtn">Confirmer</button>
       <button id="playBtn">Jouer</button>
       <div class="win" id="winMessage">Bravo ! Vous avez gagné ! 🎉</div>
+      <div class="win" id="winAmount">Vous avez gagné <span id="amountWon">0</span> G ! 🎉</div>
       <div class="lose" id="loseMessage">Désolé, vous avez perdu. 😞</div>
     </div>
 
@@ -291,10 +309,8 @@
 
       const storedNumber = sessionStorage.getItem("userPhone");
       if (!storedNumber) {
-        alert("Veuillez vous inscrire d'abord !");
         window.location.href = "index.html";
       }
-
       const userId = storedNumber;
       const balanceElement = document.getElementById("balance");
       const chancesElement = document.getElementById("chances");
@@ -302,9 +318,12 @@
       const numberGrid = document.getElementById("numberGrid");
       const numberInput = document.getElementById("numberInput");
       const playBtn = document.getElementById("playBtn");
+      const loadingScreen = document.getElementById("loadingScreen");
+      const gameContainer = document.getElementById("gameContainer");
 
       let balance = 0;
       let mise = 0;
+      let miseRestant = 0; // Valeur récupérée depuis Firebase dans le champ "mise_restant"
       let secretNumber;
       let attempts;
       let numbersRemaining;
@@ -313,34 +332,51 @@
         const userRef = ref(database, "users/" + userId);
         const snapshot = await get(userRef);
         if (snapshot.exists()) {
-          balance = snapshot.val().balance || 0;
-          balanceElement.textContent = balance ;
+          const data = snapshot.val();
+          balance = data.balance || 0;
+          miseRestant = data.mise_restant || 0;
+          balanceElement.textContent = balance;
+          // Masquer l'écran de chargement et afficher le contenu principal
+          loadingScreen.style.display = "none";
+          gameContainer.style.display = "block";
         } else {
           balanceElement.textContent = "Utilisateur non trouvé";
         }
       }
 
+      async function updateUserData() {
+        await update(ref(database, "users/" + userId), { balance: balance, mise_restant: miseRestant });
+        balanceElement.textContent = balance;
+      }
+
       async function startGame() {
         mise = parseInt(prompt("Entrez votre mise en G :"));
-        if (isNaN(mise) || mise <= 0) {
-          alert("Mise invalide.");
+        if (isNaN(mise) || mise < 10) {
+          alert("La mise minimale est de 10G.");
           return;
         }
         if (mise > balance) {
-          alert("Fonds insuffisants.");
+          alert("Fonds insuffisants. Votre balance est de " + balance + " G.");
           return;
         }
-
-        await updateBalance(-mise);
-
+        // Déduire la mise du solde
+        balance -= mise;
+        // Soustraction de la mise du champ mise_restant sans descendre sous 0
+        if (miseRestant > 0) {
+          const deduction = Math.min(mise, miseRestant);
+          miseRestant -= deduction;
+        }
+        await updateUserData();
         secretNumber = Math.floor(Math.random() * 100) + 1;
         attempts = 5;
         numbersRemaining = Array.from({ length: 100 }, (_, i) => i + 1);
         chancesElement.textContent = "Chances restantes : " + attempts;
         document.getElementById("winMessage").style.display = "none";
+        document.getElementById("winAmount").style.display = "none";
         document.getElementById("loseMessage").style.display = "none";
         generateNumberGrid();
         numberInput.style.display = "block";
+        confirmBtn.style.display = "block";
       }
 
       function generateNumberGrid() {
@@ -389,8 +425,11 @@
         if (isNaN(guessedNumber)) return;
 
         if (guessedNumber === secretNumber) {
+          const amountWon = mise * 3;
           document.getElementById("winMessage").style.display = "block";
-          await updateBalance(mise * 3);
+          document.getElementById("winAmount").style.display = "block";
+          document.getElementById("amountWon").textContent = amountWon;
+          await updateUserDataWithWinnings(amountWon);
           displaySecretNumber();
           numberInput.style.display = "none";
           confirmBtn.style.display = "none";
@@ -424,10 +463,10 @@
         numberGrid.appendChild(div);
       }
 
-      async function updateBalance(amount) {
-        balance += amount;
-        await update(ref(database, "users/" + userId), { balance: balance });
-        balanceElement.textContent = balance ;
+      async function updateUserDataWithWinnings(amountWon) {
+        balance += amountWon;
+        await update(ref(database, "users/" + userId), { balance: balance, mise_restant: miseRestant });
+        balanceElement.textContent = balance;
       }
 
       numberInput.addEventListener("input", () => {
