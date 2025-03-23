@@ -3,86 +3,203 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Demande de Retrait</title>
+  <title>Retrait - Arcade Nexus</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #222;
+    :root {
+      --primary: #2a2a72;
+      --secondary: #009ffd;
+      --accent: #ff3c00;
+      --light: #f4f6ff;
+      --dark: #1a1a2e;
+      --shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    * {
+      box-sizing: border-box;
       margin: 0;
-      padding: 20px;
-      color: white;
-      text-align: center;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--light);
+      color: var(--dark);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     .container {
-      max-width: 500px;
-      background: #111;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      width: 100%;
+      max-width: 1200px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .withdrawal-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      max-width: 100%;
+      overflow: hidden;
     }
 
     h1 {
-      color: white;
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    form {
+      margin-top: 2rem;
+      width: 100%;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+      width: 100%;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--primary);
+      font-weight: 500;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      margin: 10px 10px 10px 0;
-      border: 1px solid #444;
-      background: #333;
-      color: white;
-      border-radius: 5px;
+      padding: 1rem;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      max-width: 100%;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--secondary);
     }
 
     button {
-      background: #ff9800;
+      width: 100%;
+      padding: 1rem;
+      background: var(--primary);
       color: white;
       border: none;
-      padding: 10px;
-      width: 100%;
-      border-radius: 5px;
+      border-radius: 8px;
+      font-size: 1.1rem;
       cursor: pointer;
-      font-size: 16px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
     }
 
     button:hover {
-      background: #e68900;
+      background: var(--secondary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
 
     .message {
-      margin-top: 15px;
-      padding: 10px;
-      border-radius: 5px;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-top: 1.5rem;
       text-align: center;
-      font-weight: bold;
+      border: 2px solid transparent;
+      word-wrap: break-word;
     }
 
-    .info {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #bbb;
+    .success {
+      background: #e8f5e9;
+      border-color: #43a047;
+      color: #2e7d32;
+    }
+
+    .error {
+      background: #ffebee;
+      border-color: #ef5350;
+      color: #d32f2f;
+    }
+
+    .info-text {
+      text-align: center;
+      color: #666;
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 0.5rem;
+        margin: 1rem auto;
+      }
+
+      .withdrawal-card {
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        gap: 0.5rem;
+      }
+
+      input, button {
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Demande de Retrait</h1>
-    <p class="info">Les retraits prennent maximum 12 heures.</p>
+    <div class="withdrawal-card">
+      <h1>
+        <i class="fas fa-wallet"></i>
+        Demande de Retrait
+      </h1>
 
-    <form id="withdrawalForm">
-      <label for="amount">Montant à retirer :</label>
-      <input type="number" id="amount" placeholder="Entrez le montant" required>
+      <p class="info-text">
+        <i class="fas fa-info-circle"></i>
+        Les retraits sont traités sous 12 heures maximum
+      </p>
 
-      <button type="submit">Demander le Retrait</button>
-    </form>
+      <form id="withdrawalForm">
+        <div class="input-group">
+          <label for="amount">
+            <i class="fas fa-coins"></i>
+            Montant à retirer
+          </label>
+          <input 
+            type="number" 
+            id="amount" 
+            placeholder="Entrez le montant en Gourde"
+            required
+            step="0.01"
+            min="1"
+          >
+        </div>
 
-    <div class="message" id="message"></div>
+        <button type="submit">
+          <i class="fas fa-paper-plane"></i>
+          Demander le Retrait
+        </button>
+      </form>
+
+      <div class="message" id="message"></div>
+    </div>
   </div>
 
-  <!-- Firebase SDK -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getDatabase, ref, get, push, update } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
@@ -106,78 +223,97 @@
 
     withdrawalForm.addEventListener('submit', async function(e) {
       e.preventDefault();
+      messageDiv.className = 'message';
+      
       const phone = sessionStorage.getItem('userPhone');
       const amount = parseFloat(document.getElementById('amount').value.trim());
 
       if (!phone) {
-        messageDiv.textContent = "Aucun numéro de téléphone trouvé dans la session.";
-        messageDiv.style.color = "red";
+        showMessage("Erreur : Session utilisateur invalide", 'error');
         return;
       }
 
-      if (isNaN(amount) || amount <= 0) {
-        messageDiv.textContent = "Veuillez entrer un montant valide.";
-        messageDiv.style.color = "red";
+      if (isNaN(amount) || amount <= 49) {
+        showMessage("Montant invalide - minimum 50G", 'error');
         return;
       }
 
       try {
-        // Vérifier si une demande de retrait est déjà en attente
+        // Vérifier les demandes en cours
         const retraitRef = ref(database, 'retrait');
         const retraitSnapshot = await get(retraitRef);
+        const retraits = retraitSnapshot.val() || {};
+        const hasPending = Object.values(retraits).some(value => value.phone === phone);
 
-        let retraitEnCours = false;
-        retraitSnapshot.forEach(childSnapshot => {
-          if (childSnapshot.val().phone === phone) {
-            retraitEnCours = true;
-          }
-        });
-
-        if (retraitEnCours) {
-          messageDiv.textContent = "Vous avez déjà une demande de retrait en attente.";
-          messageDiv.style.color = "red";
+        if (hasPending) {
+          showMessage("Retrait déjà en attente", 'error');
           return;
         }
 
-        // Vérifier le solde de l'utilisateur
+        // Vérifier le solde et la mise_restant
         const userRef = ref(database, `users/${phone}`);
         const userSnapshot = await get(userRef);
+        const userData = userSnapshot.val();
 
-        if (!userSnapshot.exists()) {
-          messageDiv.textContent = "Compte utilisateur introuvable.";
-          messageDiv.style.color = "red";
+        if (userData.balance === undefined || userData.balance === null ||
+            userData.mise_restant === undefined || userData.mise_restant === null) {
+          showMessage("Solde ou mise restante indisponible", 'error');
           return;
         }
 
-        const userData = userSnapshot.val();
-        let currentBalance = parseFloat(userData.balance) || 0;
+        const currentBalance = parseFloat(userData.balance);
+        const miseRestant = parseFloat(userData.mise_restant);
+
+        // Si mise_restant est > 0, l'utilisateur doit encore parier
+        if (miseRestant > 0) {
+          showMessage(`Il vous reste ${miseRestant} G à parier avant de pouvoir effectuer un retrait.`, 'error');
+          return;
+        }
 
         if (currentBalance < amount) {
-          messageDiv.textContent = "Fonds insuffisants.";
-          messageDiv.style.color = "red";
+          showMessage("Solde insuffisant", 'error');
           return;
         }
 
-        // Ajouter la demande de retrait dans la table "retrait"
-        await push(retraitRef, {
-          phone: phone,
-          amount: amount,
-          timestamp: Date.now()
-        });
+        // Si l'utilisateur a été parrainé, transférer 5% du montant retiré dans le bonus du parrain
+        if (userData.his_code) {
+          const allUsersRef = ref(database, "users");
+          const allUsersSnapshot = await get(allUsersRef);
+          const allUsers = allUsersSnapshot.val();
+          let parrainPhone = null;
+          let parrainBonus = 0;
+          Object.entries(allUsers).forEach(([p, u]) => {
+            if (u.my_code === userData.his_code) {
+              parrainPhone = p;
+              parrainBonus = parseFloat(u.bonus || 0);
+            }
+          });
+          if (parrainPhone) {
+            const bonusToAdd = amount * 0.05;
+            const parrainRef = ref(database, `users/${parrainPhone}`);
+            await update(parrainRef, { bonus: parrainBonus + bonusToAdd });
+          }
+        }
 
-        // Réduire la balance de l'utilisateur
-        const newBalance = currentBalance - amount;
-        await update(userRef, { balance: newBalance });
+        // Enregistrer la demande de retrait et déduire le montant du solde
+        await push(retraitRef, { phone, amount, timestamp: Date.now() });
+        await update(userRef, { balance: currentBalance - amount });
 
-        messageDiv.textContent = "Demande de retrait envoyée avec succès.";
-        messageDiv.style.color = "green";
+        showMessage("✅ Demande enregistrée avec succès", 'success');
         withdrawalForm.reset();
-
       } catch (error) {
-        messageDiv.textContent = "Erreur : " + error.message;
-        messageDiv.style.color = "red";
+        showMessage(`❌ Erreur : ${error.message}`, 'error');
       }
     });
+
+    function showMessage(text, type) {
+      messageDiv.textContent = text;
+      messageDiv.className = `message ${type}`;
+      setTimeout(() => {
+        messageDiv.className = 'message';
+        messageDiv.textContent = '';
+      }, 5000);
+    }
   </script>
 </body>
 </html>
